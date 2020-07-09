@@ -35,6 +35,7 @@ const closeModal = event => {
         checkForm();
 
       }
+};
 
 addAd.addEventListener('click', () => {
   modalAdd.classList.remove('hide');
