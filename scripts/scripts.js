@@ -12,53 +12,52 @@ const modalAdd = document.querySelector('.modal__add'),
 const elementsModalSubmit = [...modalSubmit.elements] // получим все эелементы формы в массив
 .filter(elem => elem.tagName !== 'BUTTON');  // отфильтруем их от кнопки
     
-const closeModalEsc = event => {
-  // console.log(event);
-  if (event.code === 'Escape') {
-    modalAdd.classList.add('hide');
-    modalItem.classList.add('hide');
-    modalSubmit.reset();
-    document.body.removeEventListener('keydown', closeModalEsc);
-  }
-  };
+const checkForm = () => {
+  const validForm = elementsModalSubmit.every(elem => elem.value) // валидация, тут будет значение либо тру либо фолс
+  console.log(validForm);
+  modalBtnSubmit.disabled = !validForm;
+  // тернанрный оператор modalBtnWarning.style.display = valid ? true : false
+  modalBtnWarning.style.display = validForm ? 'none' : '';
+}
 
-// const closeModal = event => {
-//   const target = event.target;
-//   console.log(event);
-
-//   if (target.closest('.modal__close') ||
-//   target === modalAdd || target === modalItem) {
-//     modalAdd.classList.add('hide');
-//     modalSubmit.reset();
-//     modalItem.classList.add('hide');
-//   }
-// };
-
-// this - тот элемент который отслеживался, тогда функцию из стрелочной делаем обычную
-// this - объект(объектом ялвяется наш элемент, модалка) который вызвал событие
-// this - это контект вызова
-
-const closeModal = function (event) {
+const closeModal = event => {
   const target = event.target;
-  const code = event.code;
   // console.log(this);
   console.log(target);
 
-  if (target.closest('.modal__close') ||
-    target === this) {
-    this.classList.add('hide');
-    if (this === modalAdd) {
-      modalSubmit.reset();
-    }
-    document.body.removeEventListener('keydown', closeModal);
-  }
+  if (target.closest('.modal__close') || 
+      target.classList.contains('modal') ||
+      event.code === 'Escape') {
+        modalAdd.classList.add('hide');
+        modalItem.classList.add('hide');
+        document.body.removeEventListener('keydown', closeModal);
+        modalSubmit.reset();
+        checkForm();
+
+      }
+
+  // if (target.closest('.modal__close') ||
+  //   target === this) {
+  //   this.classList.add('hide');
+  //   if (this === modalAdd) {
+  //     modalSubmit.reset();
+  //   }
+  //   document.body.removeEventListener('keydown', closeModal);
+  // }
+
+  // if (event.code === 'Escape') {
+  //   modalAdd.classList.add('hide');
+  //   modalItem.classList.add('hide');
+  //   modalSubmit.reset();
+  //   document.body.removeEventListener('keydown', closeModal);
+  // }
   
 };
 
 addAd.addEventListener('click', () => {
   modalAdd.classList.remove('hide');
   modalBtnSubmit.disabled = true;
-  document.body.addEventListener('keydown', closeModalEsc);
+  document.body.addEventListener('keydown', closeModal);
 });
 
 catalog.addEventListener('click', event => {
@@ -66,20 +65,14 @@ catalog.addEventListener('click', event => {
   //console.log(target.closest('.card')); // показывает что делает метод closest - получаем карточку при клике на цену, картинку или хэдер
   if (target.closest('.card')) {
     modalItem.classList.remove('hide');
-    document.body.addEventListener('keydown', closeModalEsc); // навешиваем событие, только когда модалка открыта
+    document.body.addEventListener('keydown', closeModal); // навешиваем событие, только когда модалка открыта
   }
 });
 
 modalAdd.addEventListener('click', closeModal);
 modalItem.addEventListener('click', closeModal);
 
-modalSubmit.addEventListener('input', () => {
-  const validForm = elementsModalSubmit.every(elem => elem.value) // валидация, тут будет значение либо тру либо фолс
-  console.log(validForm);
-  modalBtnSubmit.disabled = !validForm;
-  // тернанрный оператор modalBtnWarning.style.display = valid ? true : false
-  modalBtnWarning.style.display = validForm ? 'none' : '';
-});
+modalSubmit.addEventListener('input', checkForm);
 
 modalSubmit.addEventListener('submit', event => {
   event.preventDefault(); // делаем чтобы не перезагружалась страница после нажатия кнопки отравить
@@ -90,12 +83,11 @@ modalSubmit.addEventListener('submit', event => {
   for (const elem of elementsModalSubmit) {
     itemObj[elem.name] = elem.value;
   }
-  console.log(itemObj);
   dataBase.push(itemObj); // добавляем в базу
-  modalSubmit.reset(); // очищаем форму
+  closeModal({target:modalAdd}); //30 минута и 37 минута // передаем объект с target  в функцию close Modal
   console.log(dataBase);
-  modalAdd.classList.add('hide');
   
+
 });
 
 
