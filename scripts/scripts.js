@@ -36,24 +36,6 @@ const closeModal = event => {
 
       }
 
-  // if (target.closest('.modal__close') ||
-  //   target === this) {
-  //   this.classList.add('hide');
-  //   if (this === modalAdd) {
-  //     modalSubmit.reset();
-  //   }
-  //   document.body.removeEventListener('keydown', closeModal);
-  // }
-
-  // if (event.code === 'Escape') {
-  //   modalAdd.classList.add('hide');
-  //   modalItem.classList.add('hide');
-  //   modalSubmit.reset();
-  //   document.body.removeEventListener('keydown', closeModal);
-  // }
-  
-};
-
 addAd.addEventListener('click', () => {
   modalAdd.classList.remove('hide');
   modalBtnSubmit.disabled = true;
@@ -89,9 +71,3 @@ modalSubmit.addEventListener('submit', event => {
   
 
 });
-
-
-// дз сделать чтобы модалка закрывалась через крестик, через эск и клик вне модалки + очистка формы
-// закрываем модалку после кнопки отправить
-
-// любая функция принимает еще аргумент - как подсказка к дз.
