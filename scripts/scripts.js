@@ -14,7 +14,16 @@ const modalAdd = document.querySelector('.modal__add'),
   modalBtnWarning = document.querySelector('.modal__btn-warning'),
   modalFileInput = document.querySelector('.modal__file-input'),
   modalFileBtn = document.querySelector('.modal__file-btn'),
-  modalImageAdd = document.querySelector('.modal__image-add');
+  modalImageAdd = document.querySelector('.modal__image-add'),
+  modalImageItem = document.querySelector('.modal__image-item'),
+  modalHeaderItem = document.querySelector('.modal__header-item'),
+  modalStatusItem = document.querySelector('.modal__status-item'),
+  modalDescriptionItem = document.querySelector('.modal__description-item'),
+  modalCostItem = document.querySelector('.modal__cost-item');
+  searchInput = document.querySelector('.search__input'),
+  menuContainer = document.querySelector('.menu__container');
+
+let counter = dataBase.length; // счетчик количества объявлений в бд
 
 const textFileBtn = modalFileBtn.textContent;
 const srcModalImage = modalImageAdd.src;
@@ -60,15 +69,16 @@ const closeModal = event => {
       }
 };
 
-const renderCard = () => {
+const renderCard = (DB = dataBase) => {
   // перет нашу БД, перебирает ее и формирует верстку
 
   // очищаем каталог для дальнейшего рендеринга и перерендеринга
   catalog.textContent = '';
   // dataBase.forEach((item, i, arr) =>{ // forEach как и все остальные методы переборов принимает функцию
-  dataBase.forEach((item, i) =>{
+  // dataBase.forEach((item) =>{
+  DB.forEach((item) =>{ // поменяли на DB после добавления renderCard(result) для поиска
     catalog.insertAdjacentHTML('beforeend', `
-				<li class="card" data-id="${i}">
+				<li class="card" data-id-item="${item.id}">
 				  <img class="card__image" src = "data:image//jpeg;base64,${item.image}" alt="test">
 				  <div class="card__description">
             <h3 class="card__header">${item.nameItem}</h3>
@@ -87,8 +97,24 @@ addAd.addEventListener('click', () => {
 
 catalog.addEventListener('click', event => {
   const target = event.target;
+  const card = target.closest('.card')
   //console.log(target.closest('.card')); // показывает что делает метод closest - получаем карточку при клике на цену, картинку или хэдер
-  if (target.closest('.card')) {
+  if (card) {
+    // console.log(dataBase[card.dataset.idItem]); // получаем объект по id-item
+
+    // const item = dataBase[card.dataset.idItem];
+    // const item = dataBase.find(obj => obj.id === +card.dataset.idItem); // находим объявления из базы данных объект, делаем так чтобы при ререндеринге id карточек не менялось
+    const item = dataBase.find(obj => obj.id === parseInt(card.dataset.idItem)); // находим объявления из базы данных объект, делаем так чтобы при ререндеринге id карточек не менялось
+    // const item = dataBase.find(obj => {
+    //   // obj.id === +card.dataset.id
+    //   console.log(typeof obj.id);
+    //   console.log(typeof card.dataset.idItem);
+    //   });
+    modalImageItem.src = `data:image//jpeg;base64,${item.image}`;
+    modalHeaderItem.textContent = item.nameItem;
+    modalStatusItem.textContent = item.status === 'new' ? 'Новый' : 'Б/у';
+    modalDescriptionItem.textContent = item.descriptionItem;
+    modalCostItem.textContent = item.costItem;
     modalItem.classList.remove('hide');
     document.body.addEventListener('keydown', closeModal); // навешиваем событие, только когда модалка открыта
   }
@@ -96,6 +122,32 @@ catalog.addEventListener('click', event => {
 
 modalAdd.addEventListener('click', closeModal);
 modalItem.addEventListener('click', closeModal);
+
+menuContainer.addEventListener('click', event => {
+  const target = event.target;
+  
+  if (target.tagName === 'A') {
+    const result = dataBase.filter(item => item.category  === target.dataset.category);
+    renderCard(result);
+  }
+
+});
+
+searchInput.addEventListener('input', () => {
+  
+  // console.log(searchInput.value); // выводится текст который будет вводится в поле input
+  // console.log(searchInput.value.trim()); // обрезаем пробелы с обоих сторон, trimstart, trimend - убирает в начале и в конце, и есть еще два метода, всего 4 их у tream
+  // console.log(searchInput.value.trim().toLowerСase()); // приводим к нижнему регистру
+
+  const valueSearch = searchInput.value.trim().toLowerCase(); //.toLowerСase;
+
+  if (valueSearch.length > 2) {// больше * сивмолов в строке
+    console.log(valueSearch);
+    const result = dataBase.filter(item => item.nameItem.toLowerCase().includes(valueSearch) || item.descriptionItem.toLowerCase().includes(valueSearch));
+    console.log(result); // отобразили в консоль результаты поиска
+    renderCard(result); // генерируется верстка на хоту, отображется найденное. (а не display none - display block)
+  }
+});
 
 // change происходит после смены фокуса, если значение до и после фокуса не поменялось - то событие не произойдет
 modalFileInput.addEventListener('change', event => {
@@ -140,7 +192,9 @@ modalSubmit.addEventListener('submit', event => {
   // for of - переменная каждый раз новая создается поэтому создаем ее через const
   for (const elem of elementsModalSubmit) {
     itemObj[elem.name] = elem.value;
+    
   }
+  itemObj.id = counter++;
   itemObj.image = infoPhoto.base64;
   dataBase.push(itemObj); // добавляем в базу
   closeModal({target:modalAdd}); //30 минута и 37 минута // передаем объект с target  в функцию close Modal
@@ -162,3 +216,8 @@ renderCard();
 // <li class = "card" data-id="${i}" i - для модального окна
 
 // дз - при клике на карточку товара - менять в модалке данные на основе id карты товара
+
+
+
+
+/// поиск, для поиска нужна функция, которая получит инпут
